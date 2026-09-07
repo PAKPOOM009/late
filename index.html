@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบบันทึกนักเรียนมาสาย | โรงเรียนเทศบาล ๔ (เพาะชำ)</title>
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Tahoma, sans-serif;
+}
+
+:root {
+    --green: #08783f;
+    --darkgreen: #045c30;
+    --orange: #f58220;
+    --lightorange: #fff2e6;
+    --lightgreen: #e8f5ed;
+    --red: #d63031;
+    --gray: #666;
+    --bg: #f4f6f5;
+}
+
+body {
+    background: var(--bg);
+    color: #222;
+}
+
+#loginPage {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--green) 0%, var(--green) 50%, var(--orange) 50%, var(--orange) 100%);
+}
+
+.login-box {
+    width: 100%;
+    max-width: 430px;
+    background: white;
+    border-radius: 25px;
+    padding: 35px 30px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,.3);
+}
+
+.school-logo,
+.header-logo {
+    object-fit: contain;
+}
+
+.school-logo {
+    width: 130px;
+    height: 130px;
+    margin-bottom: 10px;
+}
+
+.login-box h1 {
+    color: var(--green);
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.login-box p {
+    color: #777;
+    margin-bottom: 25px;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 13px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--green);
+}
+
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: .2s;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    opacity: .92;
+}
+
+.login-btn {
+    width: 100%;
+    background: var(--green);
+    color: white;
+    font-weight: bold;
+    font-size: 17px;
+}
+
+#error {
+    color: var(--red);
+    margin-top: 15px;
+    font-weight: bold;
+    min-height: 20px;
+}
+
+#app {
+    display: none;
+}
+
+header {
+    background: white;
+    border-bottom: 5px solid var(--orange);
+    padding: 12px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-logo {
+    width: 65px;
+    height: 65px;
+}
+
+header h1 {
+    color: var(--green);
+    font-size: 21px;
+}
+
+header p {
+    color: #777;
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+.logout-btn {
+    background: var(--orange);
+    color: white;
+}
+
+.container {
+    width: 92%;
+    max-width: 1250px;
+    margin: 25px auto;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: 0 3px 15px rgba(0,0,0,.08);
+    border-left: 6px solid var(--green);
+}
+
+.stat-card.orange {
+    border-left-color: var(--orange);
+}
+
+.stat-card.red {
+    border-left-color: var(--red);
+}
+
+.stat-card h3 {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 8px;
+}
+
+.stat-card strong {
+    color: var(--green);
+    font-size: 30px;
+}
+
+.section {
+    background: white;
+    padding: 25px;
+    border-radius: 18px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 15px rgba(0,0,0,.08);
+}
+
+.section h2 {
+    color: var(--green);
+    margin-bottom: 18px;
+    font-size: 21px;
+}
+
+.green-btn {
+    background: var(--green);
+    color: white;
+}
+
+.orange-btn {
+    background: var(--orange);
+    color: white;
+}
+
+.red-btn {
+    background: var(--red);
+    color: white;
+}
+
+.gray-btn {
+    background: #777;
+    color: white;
+}
+
+.search-box {
+    margin-bottom: 15px;
+}
+
+.student-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 12px;
+}
+
+.student {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+}
+
+.student:last-child {
+    border-bottom: none;
+}
+
+.student:hover {
+    background: var(--lightgreen);
+}
+
+.student.selected {
+    background: #d7f1e1;
+    border-left: 6px solid var(--green);
+}
+
+.student-name {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.student-info {
+    color: #777;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.student-actions {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.small-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.history-item {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-name {
+    font-size: 17px;
+    color: var(--green);
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.history-info {
+    line-height: 1.7;
+    color: #555;
+}
+
+.warning {
+    background: #fff3cd;
+    border-left: 5px solid var(--orange);
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    color: #7a5600;
+}
+
+.ranking {
+    display: grid;
+    gap: 10px;
+}
+
+.rank-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f8f8;
+    padding: 14px;
+    border-radius: 10px;
+}
+
+.rank-number {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--orange);
+}
+
+.chart-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+canvas {
+    width: 100%;
+    min-height: 280px;
+}
+
+.empty {
+    padding: 25px;
+    text-align: center;
+    color: #888;
+}
+
+@media (max-width: 1000px) {
+    .stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    header {
+        padding: 10px 4%;
+    }
+
+    header h1 {
+        font-size: 15px;
+    }
+
+    header p {
+        font-size: 11px;
+    }
+
+    .header-logo {
+        width: 48px;
+        height: 48px;
+    }
+
+    .logout-btn {
+        padding: 9px 10px;
+        font-size: 12px;
+    }
+
+    .container {
+        width: 94%;
+        margin: 15px auto;
+    }
+
+    .section {
+        padding: 18px;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-card strong {
+        font-size: 25px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full {
+        grid-column: auto;
+    }
+
+    .student {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .student-actions {
+        width: 100%;
+    }
+
+    .small-btn {
+        flex: 1;
+    }
+}
+</style>
+</head>
+<body>
+
+<div id="loginPage">
+    <div class="login-box">
+        <img src="S__2580482.jpg" class="school-logo" alt="โลโก้โรงเรียน">
+        <h1>ระบบบันทึกนักเรียนมาสาย</h1>
+        <p>โรงเรียนเทศบาล ๔ (เพาะชำ)</p>
+
+        <div class="input-group">
+            <label>ชื่อผู้ใช้งาน</label>
+            <input type="text" id="username" placeholder="กรอกชื่อผู้ใช้งาน">
+        </div>
+
+        <div class="input-group">
+            <label>รหัสผ่าน</label>
+            <input type="password" id="password" placeholder="กรอกรหัสผ่าน">
+        </div>
+
+        <button class="login-btn" onclick="login()">🔐 เข้าสู่ระบบ</button>
+        <div id="error"></div>
+    </div>
+</div>
+
+<div id="app">
+    <header>
+        <div class="header-left">
+            <img src="S__2580482.jpg" class="header-logo" alt="โลโก้โรงเรียน">
+            <div>
+                <h1>ระบบบันทึกนักเรียนมาสาย</h1>
+                <p>โรงเรียนเทศบาล ๔ (เพาะชำ)</p>
+            </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+    </header>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card">
+                <h3>👨‍🎓 นักเรียนทั้งหมด</h3>
+                <strong id="totalStudents">0</strong>
+            </div>
+
+            <div class="stat-card orange">
+                <h3>📅 มาสายวันนี้</h3>
+                <strong id="todayLate">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <h3>📆 สัปดาห์นี้</h3>
+                <strong id="weekLate">0</strong>
+            </div>
+
+            <div class="stat-card orange">
+                <h3>🗓️ เดือนนี้</h3>
+                <strong id="monthLate">0</strong>
+            </div>
+
+            <div class="stat-card red">
+                <h3>⚠️ มาสายทั้งหมด</h3>
+                <strong id="totalLate">0</strong>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>➕ เพิ่มนักเรียน</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>รหัสนักเรียน</label>
+                    <input type="text" id="newStudentId" placeholder="เช่น 007">
+                </div>
+
+                <div class="form-group">
+                    <label>ห้อง</label>
+                    <input type="text" id="newStudentRoom" placeholder="เช่น 6/2">
+                </div>
+
+                <div class="form-group">
+                    <label>ชื่อนักเรียน</label>
+                    <input type="text" id="newStudentName" placeholder="เช่น สมชาย รักเรียน">
+                </div>
+
+                <div class="form-group">
+                    <label>ระดับชั้น</label>
+                    <input type="text" id="newStudentGrade" placeholder="เช่น ป.6">
+                </div>
+
+                <div class="form-group full">
+                    <label>หมายเหตุ</label>
+                    <input type="text" id="newStudentNote" placeholder="เช่น รับทราบกฎระเบียบโรงเรียน">
+                </div>
+
+                <div class="form-group full">
+                    <button class="green-btn" onclick="addStudent()">เพิ่มนักเรียน</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📚 รายชื่อนักเรียน</h2>
+            <div class="search-box">
+                <input type="text" id="studentSearch" placeholder="ค้นหาชื่อนักเรียน / ห้อง / รหัสนักเรียน" oninput="renderStudentList()">
+            </div>
+            <div id="studentList" class="student-list"></div>
+        </div>
+
+        <div class="section">
+            <h2>📝 บันทึกมาสาย</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>นักเรียนที่เลือก</label>
+                    <input type="text" id="selectedStudentName" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>รหัสนักเรียน</label>
+                    <input type="text" id="selectedStudentId" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>วันที่</label>
+                    <input type="date" id="lateDate">
+                </div>
+
+                <div class="form-group">
+                    <label>เวลา</label>
+                    <input type="time" id="lateTime">
+                </div>
+
+                <div class="form-group full">
+                    <label>สาเหตุ</label>
+                    <input type="text" id="lateReason" placeholder="เช่น รถติด / เดินช้า / ป่วย">
+                </div>
+
+                <div class="form-group full">
+                    <button class="orange-btn" onclick="recordLate()">บันทึกการมาสาย</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 สถิติการมาสาย</h2>
+            <div class="chart-container">
+                <canvas id="lateChart" width="1000" height="300"></canvas>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🏆 อันดับการมาสาย</h2>
+            <div id="rankingList" class="ranking"></div>
+        </div>
+
+        <div class="section">
+            <h2>🕘 ประวัติการมาสาย</h2>
+            <div id="historyList"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const defaultUser = { username: 'admin', password: '1234' };
+
+const initialStudents = [
+    { id: '001', name: 'นางสาวปรียา ใจดี', room: '6/1', grade: 'ป.6', note: 'นักเรียนดี', lateHistory: [] },
+    { id: '002', name: 'นายกิตติพงษ์ รักเรียน', room: '6/2', grade: 'ป.6', note: 'มีความรับผิดชอบ', lateHistory: [] },
+    { id: '003', name: 'นางสาวพรทิพย์ แก้วมณี', room: '5/1', grade: 'ป.5', note: 'ชอบอ่านหนังสือ', lateHistory: [] },
+    { id: '004', name: 'นายธีรภัทร มั่นคง', room: '5/2', grade: 'ป.5', note: 'ขยันทำงาน', lateHistory: [] }
+];
+
+const state = {
+    loggedIn: false,
+    students: JSON.parse(localStorage.getItem('lateStudents')) || initialStudents,
+    selectedStudentId: null
+};
+
+function saveStudents() {
+    localStorage.setItem('lateStudents', JSON.stringify(state.students));
+}
+
+function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const error = document.getElementById('error');
+
+    if (username === defaultUser.username && password === defaultUser.password) {
+        state.loggedIn = true;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        error.textContent = '';
+        initFormDefaults();
+        renderAll();
+    } else {
+        error.textContent = 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง';
+    }
+}
+
+function logout() {
+    state.loggedIn = false;
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('error').textContent = '';
+}
+
+function initFormDefaults() {
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10);
+    document.getElementById('lateDate').value = dateStr;
+    document.getElementById('lateTime').value = today.toTimeString().slice(0, 5);
+}
+
+function addStudent() {
+    const id = document.getElementById('newStudentId').value.trim();
+    const room = document.getElementById('newStudentRoom').value.trim();
+    const name = document.getElementById('newStudentName').value.trim();
+    const grade = document.getElementById('newStudentGrade').value.trim();
+    const note = document.getElementById('newStudentNote').value.trim();
+
+    if (!id || !room || !name || !grade) {
+        alert('กรุณากรอกข้อมูลนักเรียนให้ครบถ้วน');
+        return;
+    }
+
+    const exists = state.students.some(student => student.id === id);
+    if (exists) {
+        alert('มีรหัสนักเรียนนี้อยู่แล้ว');
+        return;
+    }
+
+    state.students.push({
+        id,
+        room,
+        name,
+        grade,
+        note,
+        lateHistory: []
+    });
+
+    saveStudents();
+    renderAll();
+
+    document.getElementById('newStudentId').value = '';
+    document.getElementById('newStudentRoom').value = '';
+    document.getElementById('newStudentName').value = '';
+    document.getElementById('newStudentGrade').value = '';
+    document.getElementById('newStudentNote').value = '';
+}
+
+function getFilteredStudents() {
+    const keyword = document.getElementById('studentSearch').value.trim().toLowerCase();
+    if (!keyword) return state.students;
+
+    return state.students.filter(student => {
+        return (
+            student.name.toLowerCase().includes(keyword) ||
+            student.room.toLowerCase().includes(keyword) ||
+            student.id.toLowerCase().includes(keyword)
+        );
+    });
+}
+
+function renderStudentList() {
+    const list = document.getElementById('studentList');
+    const students = getFilteredStudents();
+
+    if (!students.length) {
+        list.innerHTML = '<div class="empty">ไม่พบนักเรียนที่ตรงกับคำค้นหา</div>';
+        return;
+    }
+
+    list.innerHTML = students.map(student => {
+        const isSelected = student.id === state.selectedStudentId ? 'selected' : '';
+        return `
+            <div class="student ${isSelected}" data-id="${student.id}" onclick="selectStudent('${student.id}')">
+                <div>
+                    <div class="student-name">${student.name}</div>
+                    <div class="student-info">รหัส: ${student.id} · ห้อง: ${student.room} · ชั้น: ${student.grade}</div>
+                </div>
+                <div class="student-actions">
+                    <button class="small-btn green-btn" onclick="event.stopPropagation(); selectStudent('${student.id}')">เลือก</button>
+                    <button class="small-btn red-btn" onclick="event.stopPropagation(); deleteStudent('${student.id}')">ลบ</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function selectStudent(studentId) {
+    const student = state.students.find(item => item.id === studentId);
+    if (!student) return;
+
+    state.selectedStudentId = studentId;
+    document.getElementById('selectedStudentName').value = student.name;
+    document.getElementById('selectedStudentId').value = student.id;
+    renderStudentList();
+}
+
+function deleteStudent(studentId) {
+    const student = state.students.find(item => item.id === studentId);
+    if (!student) return;
+
+    const confirmDelete = confirm(`ต้องการลบนักเรียน ${student.name} หรือไม่?`);
+    if (!confirmDelete) return;
+
+    state.students = state.students.filter(item => item.id !== studentId);
+    if (state.selectedStudentId === studentId) {
+        state.selectedStudentId = null;
+        document.getElementById('selectedStudentName').value = '';
+        document.getElementById('selectedStudentId').value = '';
+    }
+    saveStudents();
+    renderAll();
+}
+
+function recordLate() {
+    const studentId = document.getElementById('selectedStudentId').value.trim();
+    const date = document.getElementById('lateDate').value;
+    const time = document.getElementById('lateTime').value;
+    const reason = document.getElementById('lateReason').value.trim() || 'ไม่ระบุสาเหตุ';
+
+    if (!studentId) {
+        alert('กรุณาเลือกนักเรียนก่อนบันทึก');
+        return;
+    }
+
+    if (!date || !time) {
+        alert('กรุณาเลือกวันที่และเวลา');
+        return;
+    }
+
+    const student = state.students.find(item => item.id === studentId);
+    if (!student) {
+        alert('ไม่พบข้อมูลนักเรียน');
+        return;
+    }
+
+    const entry = {
+        date,
+        time,
+        reason,
+        note: `นักเรียน ${student.name} มาสาย ${date} เวลา ${time} สาเหตุ ${reason}`
+    };
+
+    student.lateHistory.push(entry);
+    saveStudents();
+    renderAll();
+    document.getElementById('lateReason').value = '';
+    initFormDefaults();
+}
+
+function getStats() {
+    const totalStudents = state.students.length;
+    const today = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+    const startOfWeekStr = startOfWeek.toISOString().slice(0, 10);
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    let todayLate = 0;
+    let weekLate = 0;
+    let monthLate = 0;
+    let totalLate = 0;
+
+    for (const student of state.students) {
+        for (const late of student.lateHistory) {
+            totalLate += 1;
+            if (late.date === today) todayLate += 1;
+            if (late.date >= startOfWeekStr) weekLate += 1;
+            const lateDate = new Date(late.date);
+            if (lateDate.getMonth() === currentMonth && lateDate.getFullYear() === currentYear) monthLate += 1;
+        }
+    }
+
+    document.getElementById('totalStudents').textContent = totalStudents;
+    document.getElementById('todayLate').textContent = todayLate;
+    document.getElementById('weekLate').textContent = weekLate;
+    document.getElementById('monthLate').textContent = monthLate;
+    document.getElementById('totalLate').textContent = totalLate;
+}
+
+function renderRanking() {
+    const rankingList = document.getElementById('rankingList');
+    const ranking = state.students
+        .map(student => ({
+            name: student.name,
+            count: student.lateHistory.length,
+            room: student.room
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+    if (!ranking.length || ranking.every(item => item.count === 0)) {
+        rankingList.innerHTML = '<div class="empty">ยังไม่มีข้อมูลการมาสาย</div>';
+        return;
+    }
+
+    rankingList.innerHTML = ranking.map((item, index) => `
+        <div class="rank-item">
+            <div>
+                <span class="rank-number">#${index + 1}</span>
+                <div>${item.name}</div>
+                <small>${item.room}</small>
+            </div>
+            <strong>${item.count} ครั้ง</strong>
+        </div>
+    `).join('');
+}
+
+function renderHistory() {
+    const historyList = document.getElementById('historyList');
+    const entries = [];
+
+    for (const student of state.students) {
+        for (const late of student.lateHistory) {
+            entries.push({
+                studentName: student.name,
+                room: student.room,
+                grade: student.grade,
+                ...late
+            });
+        }
+    }
+
+    entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (!entries.length) {
+        historyList.innerHTML = '<div class="empty">ยังไม่มีประวัติการมาสาย</div>';
+        return;
+    }
+
+    historyList.innerHTML = entries.map(entry => `
+        <div class="history-item">
+            <div class="history-name">${entry.studentName}</div>
+            <div class="history-info">
+                ห้อง ${entry.room} · ชั้น ${entry.grade}<br>
+                วันที่: ${entry.date} · เวลา: ${entry.time}<br>
+                สาเหตุ: ${entry.reason}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderChart() {
+    const canvas = document.getElementById('lateChart');
+    const ctx = canvas.getContext('2d');
+    const labels = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัส', 'ศุกร์', 'เสาร์', 'อาทิตย์'];
+    const values = [0, 0, 0, 0, 0, 0, 0];
+
+    for (const student of state.students) {
+        for (const late of student.lateHistory) {
+            const date = new Date(late.date);
+            const day = date.getDay();
+            values[(day + 6) % 7] += 1;
+        }
+    }
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const padding = 40;
+    const maxValue = Math.max(...values, 1);
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.strokeStyle = '#ddd';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+        const y = padding + ((height - padding * 2) / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+    }
+
+    const barWidth = ((width - padding * 2) / labels.length) * 0.65;
+    values.forEach((value, index) => {
+        const x = padding + (index * (width - padding * 2) / labels.length) + 12;
+        const barHeight = (value / maxValue) * (height - padding * 2);
+        const y = height - padding - barHeight;
+
+        ctx.fillStyle = '#f58220';
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        ctx.fillStyle = '#333';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[index], x + barWidth / 2, height - 12);
+
+        ctx.fillText(value, x + barWidth / 2, y - 8);
+    });
+}
+
+function renderAll() {
+    getStats();
+    renderStudentList();
+    renderRanking();
+    renderHistory();
+    renderChart();
+}
+
+window.onload = () => {
+    renderAll();
+    document.getElementById('lateDate').valueAsDate = new Date();
+};
+</script>
+</body>
+</html>
